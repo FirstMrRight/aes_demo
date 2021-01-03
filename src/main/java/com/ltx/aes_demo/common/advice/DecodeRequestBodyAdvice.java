@@ -1,6 +1,7 @@
 package com.ltx.aes_demo.common.advice;
 
 import com.ltx.aes_demo.common.annotation.SecurityParameter;
+import com.ltx.aes_demo.common.constant.AesConstant;
 import com.ltx.aes_demo.common.utils.AesEncryptUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -11,12 +12,15 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * @author Liutx
@@ -26,8 +30,6 @@ import java.lang.reflect.Type;
 @Slf4j
 @ControllerAdvice(basePackages = "com.ltx.aes_demo.controller")
 public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
-
-    private final static String aesKey = "d86d7bab3d6ac01ad9dc6a897652f2d2";
 
     private static final Logger logger = LoggerFactory.getLogger(DecodeRequestBodyAdvice.class);
 
@@ -42,10 +44,10 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
     }
 
     @Override
-    public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) throws IOException {
+    public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
         try {
             boolean encode = false;
-            if (methodParameter.getMethod().isAnnotationPresent(SecurityParameter.class)) {
+            if (Objects.requireNonNull(methodParameter.getMethod()).isAnnotationPresent(SecurityParameter.class)) {
                 //获取注解配置的包含和去除字段
                 SecurityParameter serializedField = methodParameter.getMethodAnnotation(SecurityParameter.class);
                 //入参是否需要解密
@@ -59,7 +61,7 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("对方法method :【" + methodParameter.getMethod().getName() + "】返回数据进行解密出现异常：" + e.getMessage());
+            logger.error("对方法method :【" + Objects.requireNonNull(methodParameter.getMethod()).getName() + "】返回数据进行解密出现异常：" + e.getMessage());
             return inputMessage;
         }
     }
@@ -76,11 +78,11 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
 
         public MyHttpInputMessage(HttpInputMessage inputMessage) throws Exception {
             this.headers = inputMessage.getHeaders();
-            this.body = IOUtils.toInputStream(AesEncryptUtil.aesDecrypt(easpString(IOUtils.toString(inputMessage.getBody(), "UTF-8")), aesKey));
+            this.body = IOUtils.toInputStream(AesEncryptUtil.aesDecrypt(easpString(IOUtils.toString(inputMessage.getBody(), StandardCharsets.UTF_8)), AesConstant.aesKey));
         }
 
         @Override
-        public InputStream getBody() throws IOException {
+        public InputStream getBody(){
             return body;
         }
 
@@ -89,24 +91,19 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
             return headers;
         }
 
-        /**
-         * @param requestData
-         * @return
-         */
+
         public String easpString(String requestData) {
-            if (requestData != null && !requestData.equals("")) {
+            if (StringUtils.isNotBlank(requestData)) {
                 String s = "{\"requestData\":";
                 if (!requestData.startsWith(s)) {
                     throw new RuntimeException("参数【requestData】缺失异常！");
                 } else {
                     int closeLen = requestData.length() - 1;
                     int openLen = "{\"requestData\":".length();
-                    String substring = StringUtils.substring(requestData, openLen, closeLen);
-                    return substring;
+                    return StringUtils.substring(requestData, openLen, closeLen);
                 }
             }
             return "";
         }
-
     }
 }

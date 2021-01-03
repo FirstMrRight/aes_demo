@@ -10,5 +10,5 @@ public interface UserService {
      * 获取用户数据
      * @return
      */
-    String getUserById();
+    User getUserById();
 }

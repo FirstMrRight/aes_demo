@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceImpl implements UserService {
     @Override
-    public String getUserById() {
-        return "test";
+    public User getUserById() {
+        return User.builder().userName("关忆北").sex("男").age(18).build();
     }
 }

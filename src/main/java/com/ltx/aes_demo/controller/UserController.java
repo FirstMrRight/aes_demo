@@ -3,6 +3,7 @@ package com.ltx.aes_demo.controller;
 import cn.licoy.encryptbody.annotation.decrypt.AESDecryptBody;
 import cn.licoy.encryptbody.annotation.encrypt.EncryptBody;
 import cn.licoy.encryptbody.enums.EncryptBodyMethod;
+import com.ltx.aes_demo.common.annotation.Decrypt;
 import com.ltx.aes_demo.common.annotation.SecurityParameter;
 import com.ltx.aes_demo.entity.User;
 import com.ltx.aes_demo.service.UserService;
@@ -25,10 +26,11 @@ public class UserController {
 
     @SecurityParameter
     @GetMapping("getUser")
-    public String getUser() {
+    public User getUser() {
         return userService.getUserById();
     }
 
+    @Decrypt
     @SecurityParameter
     @PostMapping("test")
     public String test(@RequestBody User user) {
@@ -38,8 +40,8 @@ public class UserController {
 
     @PostMapping("/save")
     @ResponseBody
-    @SecurityParameter
-    public Object save(@RequestBody String info) {
+    @SecurityParameter(outEncode = false)
+    public User save(@RequestBody User info) {
         System.out.println(info);
         return info;
     }
