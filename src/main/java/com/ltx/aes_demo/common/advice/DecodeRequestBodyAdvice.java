@@ -6,17 +6,13 @@ import com.ltx.aes_demo.common.utils.AesEncryptUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -30,8 +26,6 @@ import java.util.Objects;
 @Slf4j
 @ControllerAdvice(basePackages = "com.ltx.aes_demo.controller")
 public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
-
-    private static final Logger logger = LoggerFactory.getLogger(DecodeRequestBodyAdvice.class);
 
     @Override
     public boolean supports(MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
@@ -54,14 +48,14 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
                 encode = serializedField.inDecode();
             }
             if (encode) {
-                logger.info("对方法method :【" + methodParameter.getMethod().getName() + "】返回数据进行解密");
+                log.info("对方法method :【" + methodParameter.getMethod().getName() + "】返回数据进行解密");
                 return new MyHttpInputMessage(inputMessage);
             } else {
                 return inputMessage;
             }
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("对方法method :【" + Objects.requireNonNull(methodParameter.getMethod()).getName() + "】返回数据进行解密出现异常：" + e.getMessage());
+            log.error("对方法method :【" + Objects.requireNonNull(methodParameter.getMethod()).getName() + "】返回数据进行解密出现异常：" + e.getMessage());
             return inputMessage;
         }
     }

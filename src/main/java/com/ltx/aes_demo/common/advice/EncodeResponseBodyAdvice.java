@@ -6,8 +6,6 @@ import com.ltx.aes_demo.common.annotation.SecurityParameter;
 import com.ltx.aes_demo.common.constant.AesConstant;
 import com.ltx.aes_demo.common.utils.AesEncryptUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServerHttpRequest;
@@ -27,7 +25,6 @@ import java.util.Objects;
 @ControllerAdvice(basePackages = "com.ltx.aes_demo.controller")
 public class EncodeResponseBodyAdvice implements ResponseBodyAdvice {
 
-    private final static Logger logger = LoggerFactory.getLogger(EncodeResponseBodyAdvice.class);
 
     @Override
     public boolean supports(MethodParameter methodParameter, Class aClass) {
@@ -56,14 +53,14 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice {
             }
         }
         if (encode) {
-            logger.info("对方法method :【" + methodParameter.getMethod().getName() + "】返回数据进行加密");
+            log.info("对方法method :【" + methodParameter.getMethod().getName() + "】返回数据进行加密");
             ObjectMapper objectMapper = new ObjectMapper();
             try {
                 String result = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body);
                 return AesEncryptUtil.aesEncrypt(result, AesConstant.aesKey);
             } catch (Exception e) {
                 e.printStackTrace();
-                logger.error("对方法method :【" + methodParameter.getMethod().getName() + "】返回数据进行解密出现异常：" + e.getMessage());
+                log.error("对方法method :【" + methodParameter.getMethod().getName() + "】返回数据进行解密出现异常：" + e.getMessage());
             }
         }
         return body;
