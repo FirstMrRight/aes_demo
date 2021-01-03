@@ -23,8 +23,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 @ControllerAdvice(basePackages = "com.ltx.aes_demo.controller")
 public class EncodeResponseBodyAdvice implements ResponseBodyAdvice {
 
-
     private final static Logger logger = LoggerFactory.getLogger(EncodeResponseBodyAdvice.class);
+    private final static String aesKey = "d86d7bab3d6ac01ad9dc6a897652f2d2";
 
     @Override
     public boolean supports(MethodParameter methodParameter, Class aClass) {
@@ -45,7 +45,7 @@ public class EncodeResponseBodyAdvice implements ResponseBodyAdvice {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
                 String result = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body);
-                return AesEncryptUtil.encrypt(result);
+                return AesEncryptUtil.aesEncrypt(result, aesKey);
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.error("对方法method :【" + methodParameter.getMethod().getName() + "】返回数据进行解密出现异常：" + e.getMessage());

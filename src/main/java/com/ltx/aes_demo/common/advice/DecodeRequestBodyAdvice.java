@@ -1,6 +1,5 @@
 package com.ltx.aes_demo.common.advice;
 
-import cn.licoy.encryptbody.util.AESEncryptUtil;
 import com.ltx.aes_demo.common.annotation.SecurityParameter;
 import com.ltx.aes_demo.common.utils.AesEncryptUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,6 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
@@ -28,6 +26,8 @@ import java.lang.reflect.Type;
 @Slf4j
 @ControllerAdvice(basePackages = "com.ltx.aes_demo.controller")
 public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
+
+    private final static String aesKey = "d86d7bab3d6ac01ad9dc6a897652f2d2";
 
     private static final Logger logger = LoggerFactory.getLogger(DecodeRequestBodyAdvice.class);
 
@@ -76,7 +76,7 @@ public class DecodeRequestBodyAdvice implements RequestBodyAdvice {
 
         public MyHttpInputMessage(HttpInputMessage inputMessage) throws Exception {
             this.headers = inputMessage.getHeaders();
-            this.body = IOUtils.toInputStream(AesEncryptUtil.decrypt(easpString(IOUtils.toString(inputMessage.getBody(), "UTF-8")), "UTF-8"));
+            this.body = IOUtils.toInputStream(AesEncryptUtil.aesDecrypt(easpString(IOUtils.toString(inputMessage.getBody(), "UTF-8")), aesKey));
         }
 
         @Override

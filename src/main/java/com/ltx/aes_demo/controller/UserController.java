@@ -39,8 +39,8 @@ public class UserController {
     @PostMapping("/save")
     @ResponseBody
     @SecurityParameter
-    public Object save(@RequestBody User info) {
-        System.out.println(info.getUserName());
+    public Object save(@RequestBody String info) {
+        System.out.println(info);
         return info;
     }
 }
